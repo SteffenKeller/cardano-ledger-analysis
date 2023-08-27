@@ -9,15 +9,24 @@ import {validateAddress} from "@/utils/cardano";
 export default function Home() {
   const router = useRouter()
   const [searchInput, setSearchInput] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-
-  function handleChange(e) {
-    setSearchInput(e.target.value)
+  function handleTextFieldChange(e) {
+    setSearchInput(e.target.value);
+    setErrorMessage('');
   }
 
-  function handleClick() {
-    if (searchInput !== '') {
-      router.push(`/address/${searchInput}`)
+  function handleSearchClick() {
+    if (searchInput.startsWith('addr') || searchInput.startsWith('stake')) {
+      if (validateAddress(searchInput)) {
+        router.push(`/address/${searchInput}`)
+      } else {
+        setErrorMessage('Invalid address format')
+      }
+    } else if (searchInput.length === 64) {
+      router.push(`/transaction/${searchInput}`)
+    } else {
+      setErrorMessage('Invalid input')
     }
   }
 
@@ -29,27 +38,31 @@ export default function Home() {
           </h1>
         </div>
 
-        <div className="relative flex py-20 w-8/12">
+        <div className="relative flex w-8/12">
           <input
               type="text"
               id="address"
               className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:border-indigo-900 focus:outline-none transition-colors"
               placeholder="Enter address or transaction..."
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={handleTextFieldChange}
           />
 
           <a
-              className="px-5 py-2 bg-indigo-900 text-white rounded-r-lg hover:bg-indigo-800 active:bg-indigo-900 focus:outline-none transition-colors"
-              onClick={handleClick}
+              className="px-5 py-2 bg-indigo-900 text-white rounded-r-lg hover:bg-indigo-800 active:bg-indigo-900 focus:outline-none transition-colors hover:cursor-pointer"
+              onClick={handleSearchClick}
           >
             Search
           </a>
         </div>
 
+        {errorMessage !== '' &&
+            <div className="relative flex pt-4 text-center text-red-700 font-semibold">
+              {errorMessage}
+            </div>
+        }
 
-
-        <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
+        <div className="mb-32 grid pt-32 text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
           <Link
               href="/address"
               className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 "

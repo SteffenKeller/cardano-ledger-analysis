@@ -1,23 +1,19 @@
-import {getAddressInfo} from "@/utils/cardano";
+import {getTransactionInfo} from "@/utils/cardano";
 
-export default async function AddressInfo({params}) {
-    const addressInfo = await getAddressInfo(params.address)
+export default async function TransactionInfo({params}) {
+    const transactionInfo = await getTransactionInfo(params.hash)
 
     return (
         <>
             <div className="">
-                <h2 className="text-3xl mb-4">Address</h2>
+                <h2 className="text-3xl mb-4">Transaction</h2>
                 <div className="text-gray-600 break-all">
-                    {addressInfo.address}
+                    {transactionInfo.hash}
                 </div>
             </div>
             <div className="mt-4">
                 <List rows={[
-                    ["Balance", `${new Intl.NumberFormat('de-DE', { maximumFractionDigits: 6}).format(addressInfo.balance / 1_000_000)} ₳`],
-                    ["Stake Address", addressInfo.stakeAddress],
-                    ["Transaction Count", addressInfo.txCount],
-                    ["First Activity", addressInfo.firstSeen.toLocaleString('de')],
-                    ["Last Activity", addressInfo.lastSeen.toLocaleString('de')],
+                    ["Last Activity", "hi"],
                 ]}>
                 </List>
             </div>
