@@ -1,6 +1,7 @@
 "use server";
 
-import { Pool, types } from 'pg'
+import { Pool } from 'pg'
+
 const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -10,7 +11,6 @@ const pool = new Pool({
     max: 20,
     idleTimeoutMillis: 60000,
 });
-
 
 export async function checkDBSyncStatus() {
     const query =
@@ -171,7 +171,7 @@ export async function queryAddressBalance(address) {
     }
 }
 
-export async function queryTransaction(hash) {
+export async function queryTransactionByHash(hash) {
     console.log('[DB-Sync]', 'Query transaction')
     const query =
         `
@@ -181,6 +181,27 @@ export async function queryTransaction(hash) {
             tx
         WHERE
             hash = '\\x${hash}'
+        LIMIT 1 
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        return res.rows[0]
+    } finally {
+        client.release();
+    }
+}
+
+export async function queryTransactionById(id) {
+    console.log('[DB-Sync]', 'Query transaction')
+    const query =
+        `
+        SELECT
+            *
+        FROM 
+            tx
+        WHERE
+            id = ${id}
         LIMIT 1 
         `
     const client = await pool.connect();
@@ -255,7 +276,6 @@ export async function queryBlock(id) {
         client.release();
     }
 }
-
 
 export async function queryTransactionMultiAssetOutputs(txOutId) {
     console.log('[DB-Sync]', 'Query transaction multi asset outputs')

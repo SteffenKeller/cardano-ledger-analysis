@@ -8,7 +8,12 @@ import {
     queryAddressBalance,
     queryAddressFirstSeen,
     queryAddressLastSeen,
-    queryAddressTxCount, queryBlock, queryTransaction, queryTransactionInputs, queryTransactionOutputs
+    queryAddressTxCount,
+    queryBlock,
+    queryTransactionByHash,
+    queryTransactionById,
+    queryTransactionInputs,
+    queryTransactionOutputs
 } from "@/utils/database";
 
 export async function getAddressInfo(address) {
@@ -21,18 +26,29 @@ export async function getAddressInfo(address) {
 }
 
 export async function getTransactionInfo(hash) {
-    const tx = await queryTransaction(hash)
+    // Query transaction data
+    const tx = await queryTransactionByHash(hash)
     if (tx == null) {
         return null
     }
+    // Query transaction outputs
     const outputs = await queryTransactionOutputs(tx.id)
-    const inputs = await queryTransactionInputs(tx.id)
+    // Query transaction inputs
+    const inputsRaw = await queryTransactionInputs(tx.id)
+    // Query the previous transaction hash for each input
+    let inputs = []
+    for (const obj of inputsRaw) {
+        const tx = await queryTransactionById(obj.tx_id)
+        inputs.push({...obj, tx_hash: tx.hash.toString('hex')})
+    }
+    // query block data
     const block = await queryBlock(tx.block_id)
     return {hash, tx, outputs, inputs, block}
 }
 
 export function validateAddress(address) {
     try {
+        // Try to parse the address
         Address.from_bech32(address);
         return true
     } catch (e) {
