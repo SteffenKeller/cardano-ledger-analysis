@@ -1,17 +1,53 @@
-import Image from 'next/image'
+"use client";
+
+import {useState} from "react";
+import {useRouter} from 'next/navigation'
+
 import Link from "next/link";
+import {validateAddress} from "@/utils/cardano";
 
-import {queryLatestTxId} from "@/utils/database";
+export default function Home() {
+  const router = useRouter()
+  const [searchInput, setSearchInput] = useState('');
 
-export default async function Home() {
+
+  function handleChange(e) {
+    setSearchInput(e.target.value)
+  }
+
+  function handleClick() {
+    if (searchInput !== '') {
+      router.push(`/address/${searchInput}`)
+    }
+  }
 
   return (
-      <main className="flex min-h-screen flex-col items-center p-10">
-        <div className="relative flex lg:p-40 py-20">
+      <main className="flex min-h-screen flex-col items-center p-10 mt-8">
+        <div className="relative flex lg:p-20 py-20">
           <h1 className={`m-0 text-3xl lg:text-4xl  font-semibold`}>
             Cardano Ledger Analysis
           </h1>
         </div>
+
+        <div className="relative flex py-20 w-8/12">
+          <input
+              type="text"
+              id="address"
+              className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:border-indigo-900 focus:outline-none transition-colors"
+              placeholder="Enter address or transaction..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+          />
+
+          <a
+              className="px-5 py-2 bg-indigo-900 text-white rounded-r-lg hover:bg-indigo-800 active:bg-indigo-900 focus:outline-none transition-colors"
+              onClick={handleClick}
+          >
+            Search
+          </a>
+        </div>
+
+
 
         <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
           <Link

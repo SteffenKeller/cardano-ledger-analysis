@@ -1,3 +1,5 @@
+"use server";
+
 import { Pool } from 'pg'
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -24,6 +26,30 @@ export async function queryAddressFirstSeen(address) {
         `
         SELECT 
             MIN(block.time) AS time
+        FROM 
+            tx
+        JOIN 
+            tx_out ON tx.id = tx_out.tx_id
+        JOIN
+            block ON tx.block_id = block.id
+        WHERE 
+            tx_out.address = '${address}';    
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        const date = new Date(res.rows[0].time)
+        return date
+    } finally {
+        client.release();
+    }
+}
+
+export async function queryAddressLastSeen(address) {
+    const query =
+        `
+        SELECT 
+            MAX(block.time) AS time
         FROM 
             tx
         JOIN 

@@ -3,14 +3,22 @@ import {
     BaseAddress,
     RewardAddress,
 } from "@emurgo/cardano-serialization-lib-asmjs"
-import {queryAddressBalance, queryAddressFirstSeen, queryAddressTxCount} from "@/utils/database";
+import {queryAddressBalance, queryAddressFirstSeen, queryAddressLastSeen, queryAddressTxCount} from "@/utils/database";
 
 export async function getAddressInfo(address) {
     let stakeAddress = calculateStakeAddress(address)
     let firstSeen = await queryAddressFirstSeen(address)
+    let lastSeen = await queryAddressLastSeen(address)
     let txCount = await queryAddressTxCount(address)
     let balance = await queryAddressBalance(address)
-    return {address, stakeAddress, firstSeen, txCount, balance}
+    return {address, stakeAddress, firstSeen, lastSeen, txCount, balance}
+}
+
+export function validateAddress(address) {
+    let addr = Address.from_bech32(address)
+    let stake = BaseAddress.from_bech32(address)
+
+    console.log(addr, stake);
 }
 
 export function calculateStakeAddress(address) {
