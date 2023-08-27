@@ -1,15 +1,20 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRouter} from 'next/navigation'
 
 import Link from "next/link";
 import {validateAddress} from "@/utils/cardano";
+import {checkDBSyncStatus} from "@/utils/database";
 
 export default function Home() {
   const router = useRouter()
   const [searchInput, setSearchInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    checkDBSyncStatus().then(console.log)
+  })
 
   function handleTextFieldChange(e) {
     setSearchInput(e.target.value);
@@ -42,14 +47,14 @@ export default function Home() {
           <input
               type="text"
               id="address"
-              className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:border-indigo-900 focus:outline-none transition-colors"
+              className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:border-blue-600 focus:outline-none transition-colors"
               placeholder="Enter address or transaction..."
               value={searchInput}
               onChange={handleTextFieldChange}
           />
 
           <a
-              className="px-5 py-2 bg-indigo-900 text-white rounded-r-lg hover:bg-indigo-800 active:bg-indigo-900 focus:outline-none transition-colors hover:cursor-pointer"
+              className="px-5 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none transition-colors hover:cursor-pointer"
               onClick={handleSearchClick}
           >
             Search

@@ -27,13 +27,8 @@ export function MainLayout({children}) {
                     <ArrowLeftIcon className="h-6 w-6" />
                 </Link>
             </div>
-
-            <div className="min-h-screen w-full p-6 lg:px-20 flex items-baseline justify-center">
-                <div className="bg-white px-6 py-8 rounded-xl shadow-lg w-full">
-
-                    {children}
-
-                </div>
+            <div className="min-h-screen w-full p-6 lg:px-20">
+                {children}
             </div>
         </main>
     )
