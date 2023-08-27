@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import {useRouter} from 'next/navigation'
 
 import Link from "next/link";
+import Image from "next/image";
+
 import {validateAddress} from "@/utils/cardano";
 import {checkDBSyncStatus} from "@/utils/database";
 
@@ -36,14 +38,24 @@ export default function Home() {
   }
 
   return (
-      <main className="flex min-h-screen flex-col items-center p-10 mt-8">
-        <div className="relative flex lg:p-20 py-20">
+      <main className="flex min-h-screen flex-col items-center p-10">
+
+        <div className="relative flex p-5">
+          <Image
+              src="/cardano.png"
+              width={100}
+              height={100}
+              alt="Cardano Logo"
+          />
+        </div>
+
+        <div className="relative flex p-5">
           <h1 className={`m-0 text-3xl lg:text-4xl  font-semibold`}>
             Cardano Ledger Analysis
           </h1>
         </div>
 
-        <div className="relative flex w-8/12">
+        <div className="relative flex mt-8 w-full lg:w-9/12">
           <input
               type="text"
               id="address"
@@ -62,60 +74,10 @@ export default function Home() {
         </div>
 
         {errorMessage !== '' &&
-            <div className="relative flex pt-4 text-center text-red-700 font-semibold">
+            <div className="relative flex pt-2 text-center text-red-700 font-semibold">
               {errorMessage}
             </div>
         }
-
-        <div className="mb-32 grid pt-32 text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
-          <Link
-              href="/address"
-              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 "
-          >
-            <h2 className={`mb-3 text-2xl font-semibold`}>
-              Address Info{' '}
-              <span
-                  className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-            </h2>
-            <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-              Find information about a specific Cardano wallet.
-            </p>
-          </Link>
-
-          <Link
-              href="/transaction"
-              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 "
-          >
-            <h2 className={`mb-3 text-2xl font-semibold`}>
-              Trace Back Tx{' '}
-              <span
-                  className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-            </h2>
-            <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-              Trace back a transaction to see where the funds came from.
-            </p>
-          </Link>
-
-          <Link
-              href="/transaction"
-              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 "
-          >
-            <h2 className={`mb-3 text-2xl font-semibold`}>
-              Follow Tx{' '}
-              <span
-                  className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-            </h2>
-            <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-              Follow a transaction to see where the funds are going.
-            </p>
-          </Link>
-        </div>
       </main>
   )
 }

@@ -24,7 +24,7 @@ export default async function TransactionInfo({params}) {
                     </List>
                 </div>
             </div>
-            <div className="bg-white px-6 py-8 mt-4 rounded-xl shadow-lg w-full">
+            <div className="bg-white px-6 py-8 mt-4 rounded-xl shadow-lg w-full divide-y divide-gray-100">
                 <div className="text-xl mb-2">Inputs</div>
                 {transactionInfo.inputs.map((object, i) => (
                     <div className="grid md:grid-cols-4">
@@ -33,14 +33,13 @@ export default async function TransactionInfo({params}) {
                         <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">{formatLovelace(object.value)}</div>
                     </div>
                 ))}
-                <div className="text-xl mb-2 mt-4">Outputs</div>
+                <div className="text-xl mb-2 pt-4">Outputs</div>
                 {transactionInfo.outputs.map((object, i) => (
                     <div className="grid md:grid-cols-4">
                         <Link className="text-sm  leading-6 md:col-span-3 break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
                         <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">{formatLovelace(object.value)}</div>
                     </div>
                 ))}
-
             </div>
         </>
     );

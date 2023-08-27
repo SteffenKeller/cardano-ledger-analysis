@@ -1,7 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Link from "next/link";
-import {ArrowLeftIcon} from "@heroicons/react/24/solid";
+import {ArrowLeftIcon, HomeIcon} from "@heroicons/react/20/solid";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,7 +24,7 @@ export function MainLayout({children}) {
             <div className="flex items-baseline w-full bg-white p-5 lg:px-20">
                 <Link href="/"
                       className="hover:bg-gray-200 rounded-full">
-                    <ArrowLeftIcon className="h-6 w-6" />
+                    <HomeIcon className="h-6 w-6" />
                 </Link>
             </div>
             <div className="min-h-screen w-full p-6 lg:px-20">
