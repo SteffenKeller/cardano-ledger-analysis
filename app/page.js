@@ -3,10 +3,9 @@
 import {useEffect, useState} from "react";
 import {useRouter} from 'next/navigation'
 
-import Link from "next/link";
 import Image from "next/image";
 
-import {validateAddress} from "@/utils/cardano";
+import {validateByronAddress, validateShellyAddress, validateTransactionHash} from "@/utils/cardano";
 import {checkDBSyncStatus} from "@/utils/database";
 
 export default function Home() {
@@ -24,17 +23,15 @@ export default function Home() {
   }
 
   function handleSearchClick() {
-    if (searchInput.startsWith('addr') || searchInput.startsWith('stake')) {
-      if (validateAddress(searchInput)) {
-        router.push(`/address/${searchInput}`)
-      } else {
-        setErrorMessage('Invalid address format')
-      }
-    } else if (searchInput.length === 64) {
+
+    if (validateShellyAddress(searchInput) || validateByronAddress(searchInput)) {
+      router.push(`/address/${searchInput}`)
+    } else /*if (validateTransactionHash(searchInput)) */{
       router.push(`/transaction/${searchInput}`)
-    } else {
+    }/* else {
       setErrorMessage('Invalid input')
-    }
+    }*/
+
   }
 
   return (
@@ -59,7 +56,7 @@ export default function Home() {
           <input
               type="text"
               id="address"
-              className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:border-blue-600 focus:outline-none transition-colors"
+              className={`flex-grow border ${errorMessage !== '' ? 'border-red-500' : 'border-gray-300 focus:border-blue-600'} p-2 rounded-l-lg focus:outline-none transition-colors`}
               placeholder="Enter address or transaction..."
               value={searchInput}
               onChange={handleTextFieldChange}

@@ -171,6 +171,28 @@ export async function queryAddressBalance(address) {
     }
 }
 
+export async function queryStakeAddressTotalStake(stakeAddress) {
+    console.log('[DB-Sync]', 'Query stake address total stake')
+    const query =
+        `
+        SELECT 
+            SUM(tx_out.value) AS current_balance
+        FROM 
+            tx_out
+        LEFT JOIN 
+            tx_in ON tx_out.tx_id = tx_in.tx_out_id AND tx_out.index = tx_in.tx_out_index
+        WHERE 
+            tx_out.address = '${stakeAddress}' AND tx_in.tx_out_id IS NULL;
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        return res.rows[0].current_balance || 0
+    } finally {
+        client.release();
+    }
+}
+
 export async function queryTransactionByHash(hash) {
     console.log('[DB-Sync]', 'Query transaction')
     const query =
