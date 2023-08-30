@@ -28,11 +28,9 @@ export async function checkDBSyncStatus() {
     try {
         const res = await client.query(query.replace(/(\r\n|\n|\r)/gm, ""));
         const block = res.rows[0]
-        console.log(block)
         const firstBlock = new Date('2017-09-23 21:44:51')
         const blockDate = new Date(block.time)
         const now = new Date()
-        console.log(now.getTime(), now.getTimezoneOffset())
         const behindSec = (now.getTime()-blockDate.getTime())/1000
         let behind = behindSec+' sec'
         if (behindSec > 60) {behind = (behindSec/60).toFixed() + ' min'}
@@ -44,6 +42,54 @@ export async function checkDBSyncStatus() {
     }
 
 
+}
+
+export async function queryRecentTransactions(n) {
+    console.log('[DB-Sync]', 'Query recent transactions')
+    const query =
+        `
+        SELECT 
+            *
+        FROM 
+            tx
+        ORDER BY 
+            id DESC
+        LIMIT 
+            ${n ?? 1}
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        return res.rows
+    } finally {
+        client.release();
+    }
+}
+
+export async function queryTransactionsByOutSum(n) {
+    console.log('[DB-Sync]', 'Query transactions by largest sum')
+    const query =
+        `
+            SELECT
+                tx.id, tx.out_sum, block.time, tx.hash
+            FROM
+                tx
+            JOIN
+                block ON tx.block_id = block.id
+            WHERE
+                block.time >= (CURRENT_TIMESTAMP - INTERVAL '1 day')
+            ORDER BY
+                tx.out_sum DESC      
+            LIMIT
+                ${n}
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        return res.rows
+    } finally {
+        client.release();
+    }
 }
 
 export async function queryLatestTxId() {
