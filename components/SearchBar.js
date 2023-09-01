@@ -26,31 +26,24 @@ export default function SearchBar() {
     }
 
     return (
-        <>
-            <div className="bg-white p-4 mt-4 rounded-xl shadow-lg w-full">
-                <div className="">
-                    <h2 className="text-lg mb-4">Search</h2>
-                </div>
+    <div className="relative flex w-full">
+        <input
+            type="text"
+            id="address"
+            className={`flex-grow border ${errorMessage !== '' ? 'border-red-500' : 'border-gray-300 focus:border-blue-600'} p-2 rounded-l-lg focus:outline-none transition-colors`}
+            placeholder="Enter address or transaction..."
+            value={searchInput}
+            onChange={handleTextFieldChange}
+        />
 
-                <div className="relative flex w-full">
-                    <input
-                        type="text"
-                        id="address"
-                        className={`flex-grow border ${errorMessage !== '' ? 'border-red-500' : 'border-gray-300 focus:border-blue-600'} p-2 rounded-l-lg focus:outline-none transition-colors`}
-                        placeholder="Enter address or transaction..."
-                        value={searchInput}
-                        onChange={handleTextFieldChange}
-                    />
+        <a
+            className="px-5 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none transition-colors hover:cursor-pointer"
+            onClick={handleSearchClick}
+        >
+            Search
+        </a>
+    </div>
 
-                    <a
-                        className="px-5 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none transition-colors hover:cursor-pointer"
-                        onClick={handleSearchClick}
-                    >
-                        Search
-                    </a>
-                </div>
-            </div>
-        </>
-    )
+)
 
 }

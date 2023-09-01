@@ -49,9 +49,11 @@ export async function queryRecentTransactions(n) {
     const query =
         `
         SELECT 
-            *
+            tx.id, tx.out_sum, timezone('UTC', block.time) as time, tx.hash, block.block_no
         FROM 
             tx
+        JOIN
+            block ON tx.block_id = block.id
         ORDER BY 
             id DESC
         LIMIT 
@@ -66,18 +68,18 @@ export async function queryRecentTransactions(n) {
     }
 }
 
-export async function queryTransactionsByOutSum(n) {
+export async function queryTransactionsWithHighestOutputs(n) {
     console.log('[DB-Sync]', 'Query transactions by largest sum')
     const query =
         `
             SELECT
-                tx.id, tx.out_sum, block.time, tx.hash
+                tx.id, tx.out_sum, timezone('UTC', block.time) as time, tx.hash, block.block_no
             FROM
                 tx
             JOIN
                 block ON tx.block_id = block.id
             WHERE
-                block.time >= (CURRENT_TIMESTAMP - INTERVAL '1 day')
+                block.time >= (CURRENT_TIMESTAMP - INTERVAL '7 day')
             ORDER BY
                 tx.out_sum DESC      
             LIMIT
