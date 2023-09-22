@@ -35,16 +35,40 @@ export async function getTransactionInfo(hash) {
     if (tx == null) {
         return null
     }
+
     // Query transaction outputs
-    const outputs = await queryTransactionOutputs(tx.id)
+    const outputsRaw = await queryTransactionOutputs(tx.id)
     // Query transaction inputs
     const inputsRaw = await queryTransactionInputs(tx.id)
-    // Query the previous transaction hash for each input
+
+    // Keep track of which wallet the addresses belong to
+    let walletBookRaw = []
+    for (const obj of inputsRaw) {
+        const stakeAddress = calculateStakeAddress(obj.address)
+        walletBookRaw.push(stakeAddress || obj.address)
+    }
+    for (const obj of outputsRaw) {
+        const stakeAddress = calculateStakeAddress(obj.address)
+        walletBookRaw.push(stakeAddress || obj.address)
+    }
+    // Remove duplicates
+    const walletBook = [...new Set(walletBookRaw)];
+
+    // Query the previous transaction hash and add the wallet id for each input
     let inputs = []
     for (const obj of inputsRaw) {
         const tx = await queryTransactionById(obj.tx_id)
-        inputs.push({...obj, tx_hash: tx.hash.toString('hex')})
+        const stakeAddress = calculateStakeAddress(obj.address)
+        inputs.push({...obj, tx_hash: tx.hash.toString('hex'), wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
     }
+
+    // Add the wallet id for each output
+    let outputs = []
+    for (const obj of outputsRaw) {
+        const stakeAddress = calculateStakeAddress(obj.address)
+        outputs.push({...obj, wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
+    }
+
     // query block data
     const block = await queryBlock(tx.block_id)
     return {hash, tx, outputs, inputs, block}

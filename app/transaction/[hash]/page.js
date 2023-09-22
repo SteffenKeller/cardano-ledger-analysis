@@ -29,7 +29,10 @@ export default async function TransactionInfo({params}) {
                 <div className="text-xl mb-2">Inputs</div>
                 {transactionInfo.inputs.map((object, i) => (
                     <div className="grid md:grid-cols-4">
-                        <Link className="text-sm  leading-6 md:col-span-3 break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
+                        <div className="flex items-center leading-6 md:col-span-3 gap-3">
+                            <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
+                            <div className="bg-purple-800 text-white px-2 rounded flex align-middle">{object.wallet_id}</div>
+                        </div>
                         <Link className="text-xs  leading-6 md:col-span-3 break-all font-light text-blue-600 hover:text-blue-500 hover:underline" href={`/transaction/${object.tx_hash}`}>{object.tx_hash}</Link>
                         <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">{formatLovelace(object.value)}</div>
                     </div>
@@ -37,7 +40,10 @@ export default async function TransactionInfo({params}) {
                 <div className="text-xl mb-2 pt-4">Outputs</div>
                 {transactionInfo.outputs.map((object, i) => (
                     <div className="grid md:grid-cols-4">
-                        <Link className="text-sm  leading-6 md:col-span-3 break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
+                        <div className="flex items-center leading-6 md:col-span-3 gap-3">
+                            <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
+                            <div className="bg-purple-800 bg-clip-border text-white px-2 rounded">{object.wallet_id}</div>
+                        </div>
                         <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">{formatLovelace(object.value)}</div>
                     </div>
                 ))}
