@@ -1,6 +1,7 @@
 import {getAddressInfo} from "@/utils/cardano";
 import {formatLovelace} from "@/utils/ui";
 import List from "@/components/List";
+import Notes from "@/components/Notes";
 
 export default async function AddressInfo({params}) {
     const addressInfo = await getAddressInfo(params.address)
@@ -11,6 +12,7 @@ export default async function AddressInfo({params}) {
             {addressInfo.stakeAddress != null &&
                 <StakeAddressInfo addressInfo={addressInfo}></StakeAddressInfo>
             }
+            <Notes reference={params.address}></Notes>
         </>
     );
 }
