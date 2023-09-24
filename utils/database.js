@@ -358,12 +358,16 @@ export async function queryTransactionMultiAssetOutputs(txOutId) {
     }
 }
 
-export async function querMultiAssetInfo(id) {
+export async function queryMultiAssetInfo(id) {
     console.log('[DB-Sync]', 'Query multi asset info')
     const client = await pool.connect();
     try {
         const res = await client.query(`select * from multi_asset where id = ${id}`)
-        return res.rows
+        if (res.rows.length > 0) {
+            return res.rows[0]
+        } else {
+            return null
+        }
     } finally {
         client.release();
     }

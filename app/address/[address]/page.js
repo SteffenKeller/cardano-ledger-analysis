@@ -47,7 +47,7 @@ function StakeAddressInfo({addressInfo}) {
         <>
             <div className="bg-white px-6 py-8 mt-6 rounded-xl shadow-lg w-full">
                 <div className="">
-                    <h2 className="text-3xl mb-4">Controlled Stake Key</h2>
+                    <h2 className="text-xl mb-4">Controlled Stake Key</h2>
                     <div className="text-gray-600 break-all">
                         {addressInfo.stakeAddress}
                     </div>

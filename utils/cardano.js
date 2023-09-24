@@ -1,3 +1,5 @@
+"use server"
+
 import {
     Address,
     BaseAddress, ByronAddress,
@@ -9,15 +11,19 @@ import {
     queryAddressFirstSeen,
     queryAddressLastSeen,
     queryAddressTxCount,
-    queryBlock, queryStakeAddressTotalStake,
+    queryBlock,
+    queryMultiAssetInfo,
+    queryStakeAddressTotalStake,
     queryTransactionByHash,
     queryTransactionById,
     queryTransactionInputs,
+    queryTransactionMultiAssetOutputs,
     queryTransactionOutputs
 } from "@/utils/database";
+import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
 export async function getAddressInfo(address) {
-    let stakeAddress = calculateStakeAddress(address)
+    let stakeAddress = await calculateStakeAddress(address)
     let stakeAddressTotalStake = 0
     if (stakeAddress != null) {
         stakeAddressTotalStake = await queryStakeAddressTotalStake(stakeAddress)
@@ -44,11 +50,11 @@ export async function getTransactionInfo(hash) {
     // Keep track of which wallet the addresses belong to
     let walletBookRaw = []
     for (const obj of inputsRaw) {
-        const stakeAddress = calculateStakeAddress(obj.address)
+        const stakeAddress = await calculateStakeAddress(obj.address)
         walletBookRaw.push(stakeAddress || obj.address)
     }
     for (const obj of outputsRaw) {
-        const stakeAddress = calculateStakeAddress(obj.address)
+        const stakeAddress = await calculateStakeAddress(obj.address)
         walletBookRaw.push(stakeAddress || obj.address)
     }
     // Remove duplicates
@@ -57,24 +63,50 @@ export async function getTransactionInfo(hash) {
     // Query the previous transaction hash and add the wallet id for each input
     let inputs = []
     for (const obj of inputsRaw) {
+        // Query tokens
+        let tokens = []
+        const multiAssetOutputs = await queryTransactionMultiAssetOutputs(obj.id)
+        for (const multiAssetOutput of multiAssetOutputs) {
+            const multiAssetDetail = await queryMultiAssetInfo(multiAssetOutput.ident)
+            tokens.push({
+                policy: multiAssetDetail.policy.toString('hex'),
+                assetName: multiAssetDetail.name.toString(),
+                fingerprint: multiAssetDetail.fingerprint.toString(),
+                quantity: parseInt(multiAssetOutput.quantity)
+            })
+        }
+        // Previous Transaction
         const tx = await queryTransactionById(obj.tx_id)
-        const stakeAddress = calculateStakeAddress(obj.address)
-        inputs.push({...obj, tx_hash: tx.hash.toString('hex'), wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
+        // Stake address for wallet id determination
+        const stakeAddress = await calculateStakeAddress(obj.address)
+        inputs.push({...obj, tokens: tokens, tx_hash: tx.hash.toString('hex'), wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
     }
 
     // Add the wallet id for each output
     let outputs = []
     for (const obj of outputsRaw) {
-        const stakeAddress = calculateStakeAddress(obj.address)
-        outputs.push({...obj, wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
+        // Query tokens
+        let tokens = []
+        const multiAssetOutputs = await queryTransactionMultiAssetOutputs(obj.id)
+        for (const multiAssetOutput of multiAssetOutputs) {
+            const multiAssetDetail = await queryMultiAssetInfo(multiAssetOutput.ident)
+            tokens.push({
+                policy: multiAssetDetail.policy.toString('hex'),
+                assetName: multiAssetDetail.name.toString(),
+                fingerprint: multiAssetDetail.fingerprint.toString(),
+                quantity: parseInt(multiAssetOutput.quantity)
+            })
+        }
+        // Stake address for wallet id determination
+        const stakeAddress = await calculateStakeAddress(obj.address)
+        outputs.push({...obj, tokens: tokens, wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
     }
-
     // query block data
     const block = await queryBlock(tx.block_id)
     return {hash, tx, outputs, inputs, block}
 }
 
-export function validateShellyAddress(address) {
+export async function validateShellyAddress(address) {
     try {
         Address.from_bech32(address);
         return true
@@ -84,7 +116,7 @@ export function validateShellyAddress(address) {
     }
 }
 
-export function validateByronAddress(address) {
+export async function validateByronAddress(address) {
     try {
         ByronAddress.from_base58(address);
         return true
@@ -94,7 +126,7 @@ export function validateByronAddress(address) {
     }
 }
 
-export function validateTransactionHash(hash) {
+export async function validateTransactionHash(hash) {
     try {
         Transaction.from_hex(hash);
         return true
@@ -104,7 +136,7 @@ export function validateTransactionHash(hash) {
     }
 }
 
-export function calculateStakeAddress(address) {
+export async function calculateStakeAddress(address) {
     try {
         let addr = Address.from_bech32(address)
         let base_addr = BaseAddress.from_address(addr)

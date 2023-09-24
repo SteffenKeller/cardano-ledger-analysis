@@ -20,9 +20,8 @@ export default function Home() {
                 <SearchBar />
             </div>
 
-            <div className="mt-4 grid lg:grid-cols-2 gap-3 w-full">
+            <div className="mt-4 grid w-full">
                 <RecentTransactions />
-                <HighestOutputTransactions />
             </div>
 
         </main>
@@ -87,19 +86,19 @@ function TransactionsTable({transactions}) {
         <table className="border-t border-gray-100 w-full">
             <thead className="bg-grey-light flex flex-col items-center justify-between overflow-y-scroll w-full mt-1">
             <tr className="flex w-full px-5 py-2 text-sm">
-                <th className="w-1/3 text-left">Hash</th>
-                <th className="w-1/3">Block</th>
+                <th className="w-full text-left">Hash</th>
+                <th className="w-1/4">Block</th>
                 <th className="w-1/3">Time</th>
-                <th className="w-1/3 text-right">Value</th>
+                <th className="w-1/4 text-right">Value</th>
             </tr>
             </thead>
             <tbody className="h-80 bg-grey-light flex flex-col items-center justify-between overflow-y-scroll w-full">
             {transactions.map((transaction) => (
                 <tr className="flex w-full mb-4 px-5 text-sm">
-                    <td className ="w-1/3 break-all text-left font-medium text-blue-600 hover:text-blue-500 hover:underline"><a href={`/transaction/${transaction.hash.toString('hex')}`}>{truncateTransactionHash(transaction.hash.toString('hex'))}</a></td>
-                    <td className ="w-1/3 text-center">{transaction.block_no}</td>
+                    <td className ="w-full break-all text-left font-medium text-blue-600 hover:text-blue-500 hover:underline"><a href={`/transaction/${transaction.hash.toString('hex')}`}>{transaction.hash.toString('hex')}</a></td>
+                    <td className ="w-1/4 text-center">{transaction.block_no}</td>
                     <td className ="w-1/3 text-center">{timeSinceDate(new Date(transaction.time))}</td>
-                    <td className ="w-1/3 text-right">{`${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2}).format(transaction.out_sum / 1_000_000)} ₳`}</td>
+                    <td className ="w-1/4 text-right">{`${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2}).format(transaction.out_sum / 1_000_000)} ₳`}</td>
                 </tr>
             ))}
             </tbody>

@@ -14,9 +14,9 @@ export default function SearchBar() {
         setErrorMessage('');
     }
 
-    function handleSearchClick() {
+    async function handleSearchClick() {
 
-        if (validateShellyAddress(searchInput) || validateByronAddress(searchInput)) {
+        if (await validateShellyAddress(searchInput) || await validateByronAddress(searchInput)) {
             router.push(`/address/${searchInput}`)
         } else if (searchInput.length === 64) {
             router.push(`/transaction/${searchInput}`)
