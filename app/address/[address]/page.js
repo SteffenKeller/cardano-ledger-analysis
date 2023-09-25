@@ -3,7 +3,6 @@ import {formatLovelace} from "@/utils/ui";
 import List from "@/components/List";
 import Notes from "@/components/Notes";
 import Link from "next/link";
-import {CodeBracketSquareIcon} from "@heroicons/react/20/solid";
 
 export default async function AddressInfo({params}) {
     const addressInfo = await getAddressInfo(params.address)
@@ -11,6 +10,9 @@ export default async function AddressInfo({params}) {
     return (
         <>
             <PaymentAddressInfo addressInfo={addressInfo} />
+            {addressInfo.tokenBalances.length > 0 &&
+                <TokenBalances addressInfo={addressInfo} />
+            }
             {addressInfo.stakeAddress != null &&
                 <StakeAddressInfo addressInfo={addressInfo} />
             }
@@ -60,11 +62,9 @@ function StakeAddressInfo({addressInfo}) {
                         </dl>
                     </div>
                 </div>
-
                 <div className="mt-4 ">
                     <h2 className="text-xl mb-2 ">Related Addresses</h2>
                 </div>
-
                 {addressInfo.stakeAddressPaymentAddresses.map((row, i) => (
                     <div className="grid md:grid-cols-4 py-1">
                         <div className="flex items-center leading-6 md:col-span-3 gap-3">
@@ -75,11 +75,24 @@ function StakeAddressInfo({addressInfo}) {
                         </div>
                     </div>
                 ))}
-
-
-
             </div>
         </>
     )
 }
 
+function TokenBalances({addressInfo}) {
+    return (
+        <div className="bg-white p-6 mt-4 rounded-xl shadow-lg w-full">
+            <div className="">
+                <h2 className="text-xl mb-4">Tokens</h2>
+            </div>
+            <div>
+                <div className="flex flex-wrap gap-2">
+                    {addressInfo.tokenBalances.map((token) => (
+                        <div className="bg-blue-600 px-2 rounded text-white"><b>{token.quantity}</b> {/^[\u0000-\u007f]*$/.test(token.assetName) ? token.assetName : token.fingerprint}</div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}

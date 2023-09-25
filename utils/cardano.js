@@ -8,21 +8,23 @@ import {
 
 import {
     queryAddressBalance,
+    queryAddressTokenBalances,
     queryAddressFirstSeen,
     queryAddressLastSeen,
     queryAddressTxCount,
     queryBlock,
-    queryMultiAssetInfo, queryPaymentAddressesForStakeAddress,
-    queryStakeAddressTotalStake,
+    queryMultiAssetInfo,
+    queryPaymentAddressesForStakeAddress,
     queryTransactionByHash,
     queryTransactionById,
     queryTransactionInputs,
-    queryTransactionMultiAssetOutputs,
-    queryTransactionOutputs
+    queryTransactionOutputs,
+    queryTransactionTokenOutputs
 } from "@/utils/database";
 import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
 export async function getAddressInfo(address) {
+    // Query basic infos
     let firstSeen = await queryAddressFirstSeen(address)
     let lastSeen = await queryAddressLastSeen(address)
     let txCount = await queryAddressTxCount(address)
@@ -43,7 +45,19 @@ export async function getAddressInfo(address) {
             })
         }
     }
-    return {address, stakeAddress, firstSeen, lastSeen, txCount, balance, stakeAddressTotalStake, stakeAddressPaymentAddresses}
+    // Query token balances
+    let tokenBalances = []
+    let tokenBalancesRaw = await queryAddressTokenBalances(address)
+    for (const tokenBalance of tokenBalancesRaw) {
+        tokenBalances.push({
+            policy: tokenBalance.policy.toString('hex'),
+            assetName: tokenBalance.name.toString(),
+            fingerprint: tokenBalance.fingerprint.toString(),
+            quantity: parseInt(tokenBalance.quantity)
+        })
+    }
+    console.log(tokenBalances)
+    return {address, stakeAddress, firstSeen, lastSeen, txCount, balance, stakeAddressTotalStake, stakeAddressPaymentAddresses, tokenBalances}
 }
 
 export async function getTransactionInfo(hash) {
@@ -52,12 +66,10 @@ export async function getTransactionInfo(hash) {
     if (tx == null) {
         return null
     }
-
     // Query transaction outputs
     const outputsRaw = await queryTransactionOutputs(tx.id)
     // Query transaction inputs
     const inputsRaw = await queryTransactionInputs(tx.id)
-
     // Keep track of which wallet the addresses belong to
     let walletBookRaw = []
     for (const obj of inputsRaw) {
@@ -70,20 +82,19 @@ export async function getTransactionInfo(hash) {
     }
     // Remove duplicates
     const walletBook = [...new Set(walletBookRaw)];
-
     // Query the previous transaction hash and add the wallet id for each input
     let inputs = []
     for (const obj of inputsRaw) {
         // Query tokens
         let tokens = []
-        const multiAssetOutputs = await queryTransactionMultiAssetOutputs(obj.id)
-        for (const multiAssetOutput of multiAssetOutputs) {
-            const multiAssetDetail = await queryMultiAssetInfo(multiAssetOutput.ident)
+        const tokenOutputs = await queryTransactionTokenOutputs(obj.id)
+        for (const tokenOutput of tokenOutputs) {
+            const tokenDetail = await queryMultiAssetInfo(tokenOutput.ident)
             tokens.push({
-                policy: multiAssetDetail.policy.toString('hex'),
-                assetName: multiAssetDetail.name.toString(),
-                fingerprint: multiAssetDetail.fingerprint.toString(),
-                quantity: parseInt(multiAssetOutput.quantity)
+                policy: tokenDetail.policy.toString('hex'),
+                assetName: tokenDetail.name.toString(),
+                fingerprint: tokenDetail.fingerprint.toString(),
+                quantity: parseInt(tokenOutput.quantity)
             })
         }
         // Previous Transaction
@@ -98,14 +109,14 @@ export async function getTransactionInfo(hash) {
     for (const obj of outputsRaw) {
         // Query tokens
         let tokens = []
-        const multiAssetOutputs = await queryTransactionMultiAssetOutputs(obj.id)
-        for (const multiAssetOutput of multiAssetOutputs) {
-            const multiAssetDetail = await queryMultiAssetInfo(multiAssetOutput.ident)
+        const tokenOutputs = await queryTransactionTokenOutputs(obj.id)
+        for (const tokenOutput of tokenOutputs) {
+            const tokenDetail = await queryMultiAssetInfo(tokenOutput.ident)
             tokens.push({
-                policy: multiAssetDetail.policy.toString('hex'),
-                assetName: multiAssetDetail.name.toString(),
-                fingerprint: multiAssetDetail.fingerprint.toString(),
-                quantity: parseInt(multiAssetOutput.quantity)
+                policy: tokenDetail.policy.toString('hex'),
+                assetName: tokenDetail.name.toString(),
+                fingerprint: tokenDetail.fingerprint.toString(),
+                quantity: parseInt(tokenOutput.quantity)
             })
         }
         // Stake address for wallet id determination

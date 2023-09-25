@@ -218,6 +218,32 @@ export async function queryAddressBalance(address) {
     }
 }
 
+export async function queryAddressTokenBalances(address) {
+    console.log('[DB-Sync]', 'Query address balance')
+    const query =
+        `
+        SELECT 
+            policy,name,fingerprint,quantity
+        FROM 
+            tx_out
+        LEFT JOIN 
+            tx_in ON tx_out.tx_id = tx_in.tx_out_id AND tx_out.index = tx_in.tx_out_index
+        LEFT JOIN 
+            ma_tx_out ON ma_tx_out.tx_out_id = tx_out.id
+	    INNER JOIN
+	        multi_asset ON multi_asset.id = ma_tx_out.ident
+        WHERE 
+            tx_out.address = '${address}' AND tx_in.tx_out_id IS NULL;        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        console.log(res)
+        return res.rows
+    } finally {
+        client.release();
+    }
+}
+
 export async function queryPaymentAddressesForStakeAddress(stakeAddress) {
     console.log('[DB-Sync]', 'Query payment addresses for stake address')
     const query =
@@ -352,7 +378,7 @@ export async function queryBlock(id) {
     }
 }
 
-export async function queryTransactionMultiAssetOutputs(txOutId) {
+export async function queryTransactionTokenOutputs(txOutId) {
     console.log('[DB-Sync]', 'Query transaction multi asset outputs')
     const query =
         `
