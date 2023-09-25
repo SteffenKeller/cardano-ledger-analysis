@@ -19,7 +19,7 @@ import {
     queryTransactionById,
     queryTransactionInputs,
     queryTransactionOutputs,
-    queryTransactionTokenOutputs
+    queryTransactionTokenOutputs, queryTransactionMetadata
 } from "@/utils/database";
 import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
@@ -123,9 +123,11 @@ export async function getTransactionInfo(hash) {
         const stakeAddress = await calculateStakeAddress(obj.address)
         outputs.push({...obj, tokens: tokens, wallet_id: walletBook.indexOf(stakeAddress || obj.address) + 1})
     }
-    // query block data
+    // Query block data
     const block = await queryBlock(tx.block_id)
-    return {hash, tx, outputs, inputs, block}
+    // Query transaction metadata
+    const metadata = await queryTransactionMetadata(tx.id)
+    return {hash, tx, outputs, inputs, block, metadata}
 }
 
 export async function validateShellyAddress(address) {

@@ -358,6 +358,26 @@ export async function queryTransactionOutputs(txId) {
     }
 }
 
+export async function queryTransactionMetadata(txId) {
+    console.log('[DB-Sync]', 'Query transaction metadata')
+    const query =
+        `
+        SELECT 
+            json,key 
+        FROM 
+            tx_metadata
+        WHERE
+            tx_id = ${txId}        
+        `
+    const client = await pool.connect();
+    try {
+        const res = await client.query(query)
+        return res.rows
+    } finally {
+        client.release();
+    }
+}
+
 export async function queryBlock(id) {
     console.log('[DB-Sync]', 'Query block')
     const query =

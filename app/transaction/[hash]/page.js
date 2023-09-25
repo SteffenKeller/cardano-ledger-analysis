@@ -4,6 +4,7 @@ import {formatDate, formatLovelace} from "@/utils/ui";
 import List from "@/components/List";
 import Notes from "@/components/Notes";
 import {CodeBracketSquareIcon} from "@heroicons/react/20/solid";
+import {metadata} from "@/app/layout";
 
 export default async function Transaction({params}) {
     const transactionInfo = await getTransactionInfo(params.hash)
@@ -12,6 +13,9 @@ export default async function Transaction({params}) {
         <>
             <TransactionInfo transactionInfo={transactionInfo}></TransactionInfo>
             <InputsAndOutputs transactionInfo={transactionInfo}></InputsAndOutputs>
+            {transactionInfo.metadata &&
+                <Metadata transactionInfo={transactionInfo}></Metadata>
+            }
             <Notes reference={transactionInfo.hash}></Notes>
         </>
     );
@@ -98,5 +102,26 @@ function InputsAndOutputs({transactionInfo}) {
                 </div>
             ))}
         </div>
+    )
+}
+
+function Metadata({transactionInfo}) {
+    return (
+        <div className="bg-white p-6 mt-4 rounded-xl shadow-lg w-full divide-y divide-gray-100">
+            <h2 className="text-xl mb-4">Metadata</h2>
+            <div className="mt-2">
+                {transactionInfo.metadata.map((metadata) => (
+                    <div className="grid grid-cols-12 mt-2">
+                        <div className="col-span-1 text-sm font-medium leading-6 text-gray-900">
+                            {metadata.key}
+                        </div>
+                        <div className="col-span-11 font-mono break-all">
+                            {JSON.stringify(metadata.json, null, 3)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
     )
 }
