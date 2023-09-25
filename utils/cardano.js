@@ -12,7 +12,7 @@ import {
     queryAddressLastSeen,
     queryAddressTxCount,
     queryBlock,
-    queryMultiAssetInfo,
+    queryMultiAssetInfo, queryPaymentAddressesForStakeAddress,
     queryStakeAddressTotalStake,
     queryTransactionByHash,
     queryTransactionById,
@@ -23,16 +23,27 @@ import {
 import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
 export async function getAddressInfo(address) {
-    let stakeAddress = await calculateStakeAddress(address)
-    let stakeAddressTotalStake = 0
-    if (stakeAddress != null) {
-        stakeAddressTotalStake = await queryStakeAddressTotalStake(stakeAddress)
-    }
     let firstSeen = await queryAddressFirstSeen(address)
     let lastSeen = await queryAddressLastSeen(address)
     let txCount = await queryAddressTxCount(address)
     let balance = await queryAddressBalance(address)
-    return {address, stakeAddress, stakeAddressTotalStake, firstSeen, lastSeen, txCount, balance}
+    // Calculate the stake address for this payment address
+    let stakeAddress = await calculateStakeAddress(address)
+    let stakeAddressTotalStake = 0
+    let stakeAddressPaymentAddresses = []
+    if (stakeAddress != null) {
+        // Query all payment addresses related to this stake address and their balances
+        let paymentAddresses = await queryPaymentAddressesForStakeAddress(stakeAddress)
+        for (const paymentAddress of paymentAddresses) {
+            let paymentAddressBalance = await queryAddressBalance(paymentAddress.address)
+            stakeAddressTotalStake += parseInt(paymentAddressBalance)
+            stakeAddressPaymentAddresses.push({
+                address: paymentAddress.address,
+                balance: parseInt(paymentAddressBalance)
+            })
+        }
+    }
+    return {address, stakeAddress, firstSeen, lastSeen, txCount, balance, stakeAddressTotalStake, stakeAddressPaymentAddresses}
 }
 
 export async function getTransactionInfo(hash) {

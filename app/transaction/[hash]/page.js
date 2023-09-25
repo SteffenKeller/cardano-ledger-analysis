@@ -83,6 +83,9 @@ function InputsAndOutputs({transactionInfo}) {
                     <div className="flex items-center leading-6 md:col-span-3 gap-3">
                         <div className={`${colorForWalletId(object.wallet_id)} text-white px-2 rounded-xl flex align-middle`}>{object.wallet_id}</div>
                         <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
+                        {object.address_has_script &&
+                            <CodeBracketSquareIcon className="w-7 h-7 fill-blue-600" />
+                        }
                     </div>
                     <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">
                         <div>{formatLovelace(object.value)}</div>

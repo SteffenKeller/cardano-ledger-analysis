@@ -190,7 +190,6 @@ export async function queryAddressTxCount(address) {
     const client = await pool.connect();
     try {
         const res = await client.query(query)
-        console.log(res.rows)
         return res.rows[0].num_transactions
     } finally {
         client.release();
@@ -219,23 +218,29 @@ export async function queryAddressBalance(address) {
     }
 }
 
-export async function queryStakeAddressTotalStake(stakeAddress) {
-    console.log('[DB-Sync]', 'Query stake address total stake')
+export async function queryPaymentAddressesForStakeAddress(stakeAddress) {
+    console.log('[DB-Sync]', 'Query payment addresses for stake address')
     const query =
         `
         SELECT 
-            SUM(tx_out.value) AS current_balance
-        FROM 
-            tx_out
-        LEFT JOIN 
-            tx_in ON tx_out.tx_id = tx_in.tx_out_id AND tx_out.index = tx_in.tx_out_index
-        WHERE 
-            tx_out.address = '${stakeAddress}' AND tx_in.tx_out_id IS NULL;
+            DISTINCT address
+        FROM
+            stake_address
+        JOIN 
+            utxo_view
+        ON 
+            stake_address.id = utxo_view.stake_address_id
+        WHERE
+            stake_address.view = '${stakeAddress}'
         `
     const client = await pool.connect();
     try {
         const res = await client.query(query)
-        return res.rows[0].current_balance || 0
+        if (res.rows.length > 0) {
+            return res.rows
+        } else {
+            return null
+        }
     } finally {
         client.release();
     }
@@ -349,9 +354,18 @@ export async function queryBlock(id) {
 
 export async function queryTransactionMultiAssetOutputs(txOutId) {
     console.log('[DB-Sync]', 'Query transaction multi asset outputs')
+    const query =
+        `
+        SELECT 
+            *
+        FROM
+            ma_tx_out
+        WHERE
+            tx_out_id = ${txOutId}
+        `
     const client = await pool.connect();
     try {
-        const res = await client.query(`select * from ma_tx_out where tx_out_id = ${txOutId}`)
+        const res = await client.query(query)
         return res.rows
     } finally {
         client.release();
@@ -360,9 +374,18 @@ export async function queryTransactionMultiAssetOutputs(txOutId) {
 
 export async function queryMultiAssetInfo(id) {
     console.log('[DB-Sync]', 'Query multi asset info')
+    const query =
+        `
+        SELECT 
+            *
+        FROM
+            multi_asset
+        WHERE
+            id = ${id}
+        `
     const client = await pool.connect();
     try {
-        const res = await client.query(`select * from multi_asset where id = ${id}`)
+        const res = await client.query(query)
         if (res.rows.length > 0) {
             return res.rows[0]
         } else {
