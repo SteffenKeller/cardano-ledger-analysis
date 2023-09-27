@@ -56,7 +56,6 @@ export async function getAddressInfo(address) {
             quantity: parseInt(tokenBalance.quantity)
         })
     }
-    console.log(tokenBalances)
     return {address, stakeAddress, firstSeen, lastSeen, txCount, balance, stakeAddressTotalStake, stakeAddressPaymentAddresses, tokenBalances}
 }
 
@@ -127,7 +126,38 @@ export async function getTransactionInfo(hash) {
     const block = await queryBlock(tx.block_id)
     // Query transaction metadata
     const metadata = await queryTransactionMetadata(tx.id)
-    return {hash, tx, outputs, inputs, block, metadata}
+    // Backtrace chart data
+    // Level 1
+    let backtraceData = {
+        "name": "Tx",
+        "children": []
+    }
+    for (const input of inputs) {
+        // Level 2
+        let backtraceData2 = {
+            "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`,
+            "children": []
+        }
+        const inputsLevel2 = await queryTransactionInputs(input.tx_id)
+        for (const input of inputsLevel2) {
+            // Level 3
+            let backtraceData3 = {
+                "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`,
+                "children": []
+            }
+            const inputsLevel3 = await queryTransactionInputs(input.tx_id)
+            for (const input of inputsLevel3) {
+                // Level 4
+                backtraceData3.children.push({
+                    "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`
+                })
+            }
+
+            backtraceData2.children.push(backtraceData3)
+        }
+        backtraceData.children.push(backtraceData2)
+    }
+    return {hash, tx, outputs, inputs, block, metadata, backtraceData}
 }
 
 export async function validateShellyAddress(address) {

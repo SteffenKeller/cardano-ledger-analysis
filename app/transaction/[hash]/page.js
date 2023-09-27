@@ -4,7 +4,7 @@ import {formatDate, formatLovelace} from "@/utils/ui";
 import List from "@/components/List";
 import Notes from "@/components/Notes";
 import {CodeBracketSquareIcon} from "@heroicons/react/20/solid";
-import {metadata} from "@/app/layout";
+import Chart from "@/components/Chart";
 
 export default async function Transaction({params}) {
     const transactionInfo = await getTransactionInfo(params.hash)
@@ -13,9 +13,10 @@ export default async function Transaction({params}) {
         <>
             <TransactionInfo transactionInfo={transactionInfo}></TransactionInfo>
             <InputsAndOutputs transactionInfo={transactionInfo}></InputsAndOutputs>
-            {transactionInfo.metadata &&
+            {transactionInfo.length > 0 &&
                 <Metadata transactionInfo={transactionInfo}></Metadata>
             }
+            <Chart data={transactionInfo.backtraceData} />
             <Notes reference={transactionInfo.hash}></Notes>
         </>
     );
