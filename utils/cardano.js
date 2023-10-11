@@ -3,7 +3,7 @@
 import {
     Address,
     BaseAddress, ByronAddress,
-    RewardAddress, Transaction,
+    RewardAddress,
 } from "@emurgo/cardano-serialization-lib-asmjs"
 
 import {
@@ -19,10 +19,23 @@ import {
     queryTransactionById,
     queryTransactionInputs,
     queryTransactionOutputs,
-    queryTransactionTokenOutputs, queryTransactionMetadata
+    queryTransactionTokenOutputs,
+    queryTransactionMetadata
 } from "@/utils/database";
 import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
+/**
+ * A book of known addresses and their labels
+ */
+export const addressBook = {
+    '': ''
+}
+
+/**
+ * Queries information about an address
+ * @param address
+ * @returns {Promise<{address, lastSeen: Date, balance: *, firstSeen: Date, txCount: *, stakeAddressTotalStake: number, stakeAddress: string, tokenBalances: *[], stakeAddressPaymentAddresses: *[]}>}
+ */
 export async function getAddressInfo(address) {
     // Query basic infos
     let firstSeen = await queryAddressFirstSeen(address)
@@ -59,6 +72,11 @@ export async function getAddressInfo(address) {
     return {address, stakeAddress, firstSeen, lastSeen, txCount, balance, stakeAddressTotalStake, stakeAddressPaymentAddresses, tokenBalances}
 }
 
+/**
+ * Queries information about a specific transaction
+ * @param hash
+ * @returns {Promise<null|{outputs: *[], metadata: *, tx: *, inputs: *[], backtraceData: {children: *[], name: string}, block: *, hash}>}
+ */
 export async function getTransactionInfo(hash) {
     // Query transaction data
     const tx = await queryTransactionByHash(hash)
@@ -160,6 +178,11 @@ export async function getTransactionInfo(hash) {
     return {hash, tx, outputs, inputs, block, metadata, backtraceData}
 }
 
+/**
+ * Checks if an address is in Shelly era format
+ * @param address
+ * @returns {Promise<boolean>}
+ */
 export async function validateShellyAddress(address) {
     try {
         Address.from_bech32(address);
@@ -170,6 +193,11 @@ export async function validateShellyAddress(address) {
     }
 }
 
+/**
+ * Checks if an address is in Byron era format
+ * @param address
+ * @returns {Promise<boolean>}
+ */
 export async function validateByronAddress(address) {
     try {
         ByronAddress.from_base58(address);
@@ -180,16 +208,11 @@ export async function validateByronAddress(address) {
     }
 }
 
-export async function validateTransactionHash(hash) {
-    try {
-        Transaction.from_hex(hash);
-        return true
-    } catch (e) {
-        console.log(e)
-        return false
-    }
-}
-
+/**
+ * Calculates the stake address from a given payment address or returns null if there isn't one included
+ * @param address
+ * @returns {Promise<string|null>}
+ */
 export async function calculateStakeAddress(address) {
     try {
         let addr = Address.from_bech32(address)
