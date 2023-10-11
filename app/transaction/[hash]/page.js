@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {getTransactionInfo} from "@/utils/cardano";
+import {addressBook} from "@/utils/addressBook";
 import {formatDate, formatLovelace} from "@/utils/ui";
 import List from "@/components/List";
 import Notes from "@/components/Notes";
@@ -8,7 +9,6 @@ import Chart from "@/components/Chart";
 
 export default async function Transaction({params}) {
     const transactionInfo = await getTransactionInfo(params.hash)
-
     return (
         <>
             <TransactionInfo transactionInfo={transactionInfo}></TransactionInfo>
@@ -67,7 +67,12 @@ function InputsAndOutputs({transactionInfo}) {
                         <div className={`${colorForWalletId(object.wallet_id)} text-white px-2 rounded-xl flex align-middle`}>{object.wallet_id}</div>
                         <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
                         {object.address_has_script &&
-                            <CodeBracketSquareIcon className="w-7 h-7 fill-blue-600" />
+                            <CodeBracketSquareIcon className="w-7 h-7 fill-purple-800" />
+                        }
+                        {addressBook[object.address] &&
+                            <div className="bg-purple-800 text-white font-mono rounded px-1.5">
+                                {addressBook[object.address]}
+                            </div>
                         }
                     </div>
                     <Link className="text-xs  leading-6 md:col-span-3 break-all font-light text-blue-600 hover:text-blue-500 hover:underline" href={`/transaction/${object.tx_hash}`}>{object.tx_hash}</Link>
@@ -89,7 +94,12 @@ function InputsAndOutputs({transactionInfo}) {
                         <div className={`${colorForWalletId(object.wallet_id)} text-white px-2 rounded-xl flex align-middle`}>{object.wallet_id}</div>
                         <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${object.address}`}>{object.address}</Link>
                         {object.address_has_script &&
-                            <CodeBracketSquareIcon className="w-7 h-7 fill-blue-600" />
+                            <CodeBracketSquareIcon className="w-7 h-7 fill-purple-800" />
+                        }
+                        {addressBook[object.address] &&
+                            <div className="bg-purple-800 text-white font-mono rounded px-1.5">
+                                {addressBook[object.address]}
+                            </div>
                         }
                     </div>
                     <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">

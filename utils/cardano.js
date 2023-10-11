@@ -25,13 +25,6 @@ import {
 import {console} from "next/dist/compiled/@edge-runtime/primitives";
 
 /**
- * A book of known addresses and their labels
- */
-export const addressBook = {
-    '': ''
-}
-
-/**
  * Queries information about an address
  * @param address
  * @returns {Promise<{address, lastSeen: Date, balance: *, firstSeen: Date, txCount: *, stakeAddressTotalStake: number, stakeAddress: string, tokenBalances: *[], stakeAddressPaymentAddresses: *[]}>}
