@@ -13,7 +13,7 @@ export default async function Transaction({params}) {
         <>
             <TransactionInfo transactionInfo={transactionInfo}></TransactionInfo>
             <InputsAndOutputs transactionInfo={transactionInfo}></InputsAndOutputs>
-            {transactionInfo.length > 0 &&
+            {transactionInfo.metadata.length > 0 &&
                 <Metadata transactionInfo={transactionInfo}></Metadata>
             }
             <Chart data={transactionInfo.backtraceData} />

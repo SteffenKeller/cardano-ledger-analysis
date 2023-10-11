@@ -135,21 +135,21 @@ export async function getTransactionInfo(hash) {
     for (const input of inputs) {
         // Level 2
         let backtraceData2 = {
-            "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`,
+            "name": `${input.address.slice(0,8)}...${input.address.slice(input.address.length-4)} \n${Math.floor(input.value/1000000)} ₳`,
             "children": []
         }
         const inputsLevel2 = await queryTransactionInputs(input.tx_id)
         for (const input of inputsLevel2) {
             // Level 3
             let backtraceData3 = {
-                "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`,
+                "name": `${input.address.slice(0,8)}...${input.address.slice(input.address.length-4)} \n${Math.floor(input.value/1000000)} ₳`,
                 "children": []
             }
             const inputsLevel3 = await queryTransactionInputs(input.tx_id)
             for (const input of inputsLevel3) {
                 // Level 4
                 backtraceData3.children.push({
-                    "name": `${input.address.slice(0,10)} \n${Math.floor(input.value/1000000)} ₳`
+                    "name": `${input.address.slice(0,8)}...${input.address.slice(input.address.length-4)} \n${Math.floor(input.value/1000000)} ₳`
                 })
             }
 
