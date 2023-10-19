@@ -42,13 +42,15 @@ export async function getAddressInfo(address) {
     if (stakeAddress != null) {
         // Query all payment addresses related to this stake address and their balances
         let paymentAddresses = await queryPaymentAddressesForStakeAddress(stakeAddress)
-        for (const paymentAddress of paymentAddresses) {
-            let paymentAddressBalance = await queryAddressBalance(paymentAddress.address)
-            stakeAddressTotalStake += parseInt(paymentAddressBalance)
-            stakeAddressPaymentAddresses.push({
-                address: paymentAddress.address,
-                balance: parseInt(paymentAddressBalance)
-            })
+        if (paymentAddresses != null) {
+            for (const paymentAddress of paymentAddresses) {
+                let paymentAddressBalance = await queryAddressBalance(paymentAddress.address)
+                stakeAddressTotalStake += parseInt(paymentAddressBalance)
+                stakeAddressPaymentAddresses.push({
+                    address: paymentAddress.address,
+                    balance: parseInt(paymentAddressBalance)
+                })
+            }
         }
     }
     // Query token balances

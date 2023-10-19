@@ -62,19 +62,23 @@ function StakeAddressInfo({addressInfo}) {
                         </dl>
                     </div>
                 </div>
-                <div className="mt-4 ">
-                    <h2 className="text-xl mb-2 ">Related Addresses</h2>
-                </div>
-                {addressInfo.stakeAddressPaymentAddresses.map((row, i) => (
-                    <div className="grid md:grid-cols-4 py-1">
-                        <div className="flex items-center leading-6 md:col-span-3 gap-3">
-                            <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${row.address}`}>{row.address}</Link>
+                {addressInfo.stakeAddressPaymentAddresses.length > 0 &&
+                    <>
+                        <div className="mt-4 ">
+                            <h2 className="text-xl mb-2 ">Related Addresses</h2>
                         </div>
-                        <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">
-                            <div>{formatLovelace(row.balance)}</div>
-                        </div>
-                    </div>
-                ))}
+                        {addressInfo.stakeAddressPaymentAddresses.map((row, i) => (
+                            <div className="grid md:grid-cols-4 py-1">
+                                <div className="flex items-center leading-6 md:col-span-3 gap-3">
+                                    <Link className="text-sm   break-all font-medium text-blue-600 hover:text-blue-500 hover:underline" href={`/address/${row.address}`}>{row.address}</Link>
+                                </div>
+                                <div className="mt-1 text-sm leading-6 text-right mb-3 md:mb-0">
+                                    <div>{formatLovelace(row.balance)}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </>
+                }
             </div>
         </>
     )
